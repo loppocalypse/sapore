@@ -153,9 +153,9 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
               </CardHeader>
               <CardContent>
                 <p className={`${roboto.className} text-gray-300 text-sm mb-4 line-clamp-3`}>{product.description}</p>
-                <Button onClick={() => addToCart(product)} className={`${poppins.className} w-full font-semibold border border-amber-500 text-amber-400 bg-transparent hover:bg-amber-500 hover:text-black transition-all`}>
+                {/*<Button onClick={() => addToCart(product)} className={`${poppins.className} w-full font-semibold border border-amber-500 text-amber-400 bg-transparent hover:bg-amber-500 hover:text-black transition-all`}>
                   Add to Cart
-                </Button>
+                </Button>*/}
               </CardContent>
             </Card>
           </motion.div>
