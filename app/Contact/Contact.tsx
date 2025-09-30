@@ -34,7 +34,7 @@ export default function Contact() {
                 href="tel:+995 599 64 20 08"
                 className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-[#F44322] transition-colors`}
               >
-                +995 579 29 01 35
+                +995 599 64 20 08
               </Link>
             </div>
             <div className="flex items-center justify-center space-x-3">

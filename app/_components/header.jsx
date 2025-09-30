@@ -43,8 +43,13 @@ export default function Navbar() {
     };
   }, []);
 
+  // Function to close menu on link click
+  const handleLinkClick = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
-    <header className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-7xl"> {/** gray-900/60 */}
+    <header className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-7xl">
       <motion.nav
         className="relative bg-gray-900/20 backdrop-blur-md border rounded-2xl shadow-lg overflow-hidden"
         animate={{
@@ -84,7 +89,6 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className='flex items-center space-x-3 text-white'>
-              {/* <Image src="/motion-records-logo.png" alt="Motion Records LLC" width={120} height={40} className="h-8 w-auto brightness-0 invert"/> */}
               <h1 className={playfair.className}>Sapore</h1>
             </Link>
 
@@ -130,23 +134,23 @@ export default function Navbar() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.35, ease: [0.25, 0.8, 0.25, 1] }} // yumuşak easing
+              transition={{ duration: 0.35, ease: [0.25, 0.8, 0.25, 1] }}
               className="md:hidden border-t border-gray-700/50 bg-gray-900/20 backdrop-blur-md rounded-b-2xl overflow-hidden"
             >
               <div className="px-6 py-4 space-y-3">
-                <Link href="/AboutUs" className="block text-gray-300 hover:text-blue-400">
+                <Link href="/AboutUs" onClick={handleLinkClick} className="block text-gray-300 hover:text-blue-400">
                   About Us
                 </Link>
-                <Link href="/Menu" className="block text-gray-300 hover:text-pink-400">
+                <Link href="/Menu" onClick={handleLinkClick} className="block text-gray-300 hover:text-pink-400">
                   Menu
                 </Link>
-                <Link href="/Events" className="block text-gray-300 hover:text-purple-400">
+                <Link href="/" onClick={handleLinkClick} className="block text-gray-300 hover:text-purple-400">
                   Events
                 </Link>
-                <Link href="/Contact" className="block text-gray-300 hover:text-green-400">
+                <Link href="/Contact" onClick={handleLinkClick} className="block text-gray-300 hover:text-green-400">
                   Contact / Social Media
                 </Link>
-                <Link href="/Report" className="block text-gray-300 hover:text-orange-400">
+                <Link href="/Report" onClick={handleLinkClick} className="block text-gray-300 hover:text-orange-400">
                   Report
                 </Link>
                 <div className="pt-3 border-t border-gray-700">
@@ -158,6 +162,7 @@ export default function Navbar() {
                         <Button
                           variant="ghost"
                           className="w-full text-gray-300 hover:bg-gray-700"
+                          onClick={handleLinkClick}
                         >
                           Sign In
                         </Button>
@@ -166,6 +171,7 @@ export default function Navbar() {
                         <Button
                           size="sm"
                           className="w-full bg-white text-black hover:bg-gray-100"
+                          onClick={handleLinkClick}
                         >
                           Sign Up
                         </Button>

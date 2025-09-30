@@ -19,9 +19,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const locations = [
-  { id: 1, name: 'Isani' },
-  { id: 2, name: 'Marjanishvili' },
-  { id: 3, name: 'Tavisufleba' },
+  { id: 1, name: '95 Davit Aghmashenebeli Ave.' },
+  { id: 2, name: '134 Davit Aghmashenebeli Ave' },
+  { id: 3, name: 'Kote Apkhazis 31' },
+  { id: 4, name: 'Ialbuzi 9'},
 ]
 
 export default function Report() {
