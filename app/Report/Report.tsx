@@ -19,8 +19,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const locations = [
-  { id: 1, name: '95 Davit Aghmashenebeli Ave.' },
-  { id: 2, name: '134 Davit Aghmashenebeli Ave' },
+  { id: 1, name: 'Davit Aghmashenebeli Ave. 95' },
+  { id: 2, name: 'Davit Aghmashenebeli Ave. 134' },
   { id: 3, name: 'Kote Apkhazis 31' },
   { id: 4, name: 'Ialbuzi 9'},
 ]
