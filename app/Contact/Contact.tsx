@@ -32,7 +32,7 @@ export default function Contact() {
               <Phone className="h-6 w-6 text-[#D4A017]" />
               <Link
                 href="tel:+995 599 64 20 08"
-                className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-[#F44322] transition-colors`}
+                className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
               >
                 +995 599 64 20 08
               </Link>
@@ -41,7 +41,7 @@ export default function Contact() {
               <Mail className="h-6 w-6 text-[#D4A017]" />
               <Link
                 href="mailto:saporegeo@gmail.com"
-                className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-[#F44322] transition-colors`}
+                className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
               >
                 saporegeo@gmail.com
               </Link>
@@ -52,7 +52,7 @@ export default function Contact() {
                 href="https://www.instagram.com/sapore.tbilisi"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-[#F44322] transition-colors`}
+                className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
               >
                 @sapore.tbilisi
               </Link>
@@ -63,7 +63,7 @@ export default function Contact() {
                 href="https://www.tiktok.com/@cafesaporetbilisi"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-[#F44322] transition-colors`}
+                className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
               >
                 @cafesaporetbilisi
               </Link>
