@@ -20,7 +20,7 @@ interface Product {
   image_url?: string;
   category_id?: string;
   description?: string;
-  price?: number;
+  price?: number; // Varyantsız ürünler için
   variants?: { id: string; variant_name: string; price: number }[];
 }
 
@@ -74,7 +74,7 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
     if (product.variants && product.variants.length > 0) {
       const selectedVariant = selectedVariants[product.id];
       if (!selectedVariant) {
-        setSubmitError('Lütfen bir varyant seçin');
+        setSubmitError('Please Select a Variant');
         return;
       }
       const existingItem = cart.find(item => item.product_id === product.id && item.variant_id === selectedVariant.id);
@@ -132,15 +132,15 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
 
   const submitOrder = async () => {
     if (!tableNumber || isNaN(parseInt(tableNumber)) || parseInt(tableNumber) <= 0) {
-      setSubmitError('Lütfen geçerli bir masa numarası seçin');
+      setSubmitError('Please Select a Valid Table Number');
       return;
     }
     if (!branchId) {
-      setSubmitError('Lütfen bir şube seçin');
+      setSubmitError('Please Select a Branch');
       return;
     }
     if (cart.length === 0) {
-      setSubmitError('Sepetiniz boş');
+      setSubmitError('Your Cart is Empty');
       return;
     }
 
@@ -159,11 +159,11 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
         setIsCartOpen(false);
         alert('Successfully Ordered!');
       } else {
-        throw new Error(result.error || 'Sipariş oluşturulamadı');
+        throw new Error(result.error || 'Can Not Create The Order');
       }
     } catch (error: any) {
-      console.error('Sipariş hatası:', error.message);
-      setSubmitError(`Sipariş oluşturulamadı: ${error.message}`);
+      console.error('Order Error:', error.message);
+      setSubmitError(`Could Not Order: ${error.message}`);
     }
   };
 
@@ -172,7 +172,7 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
   }
 
   if (!products.length && !branches.length) {
-    return <div className="text-center py-6 text-gray-300">Veri bulunamadı</div>;
+    return <div className="text-center py-6 text-gray-300">Info Not Found</div>;
   }
 
   return (
@@ -195,32 +195,13 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
                   height={300}
                   className="w-full h-60 object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute top-3 right-3 flex flex-col gap-2">
-                  {product.variants && product.variants.length > 0 ? (
-                    product.variants.map(variant => (
-                      <button
-                        key={variant.id}
-                        onClick={() => setSelectedVariants({
-                          ...selectedVariants,
-                          [product.id!]: variant
-                        })}
-                        className={`${poppins.className} px-4 py-1 rounded-lg text-sm font-semibold shadow-lg backdrop-blur-md bg-white/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500 hover:text-black transition-all ${
-                          selectedVariants[product.id!]?.id === variant.id ? 'bg-amber-500 text-amber-400' : ''
-                        }`}
-                      >
-                        {variant.variant_name} ₾{variant.price.toFixed(2)}
-                      </button>
-                    ))
-                  ) : typeof product.price === 'number' && product.price > 0 ? (
-                    <span className={`${poppins.className} px-4 py-1 rounded-lg text-sm font-semibold shadow-lg backdrop-blur-md bg-white/10 text-amber-400 border border-amber-500/30`}>
-                      ₾{product.price.toFixed(2)}
-                    </span>
-                  ) : (
-                    <span className={`${poppins.className} px-4 py-1 rounded-lg text-sm font-semibold shadow-lg backdrop-blur-md bg-white/10 text-amber-400 border border-amber-500/30`}>
-                      Price isn't Available
-                    </span>
-                  )}
-                </div>
+                <span className={`${poppins.className} absolute top-3 right-3 px-4 py-1 rounded-lg text-sm font-semibold shadow-lg backdrop-blur-md bg-white/10 text-amber-400 border border-amber-500/30`}>
+                  {product.variants && product.variants.length > 0 && selectedVariants[product.id!]
+                    ? `₾${selectedVariants[product.id!].price.toFixed(2)}`
+                    : typeof product.price === 'number' && product.price > 0
+                      ? `₾${product.price.toFixed(2)}`
+                      : 'Fiyat mevcut değil'}
+                </span>
               </div>
               <CardHeader className="pb-0">
                 <CardTitle className={`${playfair.className} text-xl font-playfair text-amber-400`}>
@@ -229,6 +210,24 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
               </CardHeader>
               <CardContent>
                 <p className={`${roboto.className} text-gray-300 text-sm mb-4 line-clamp-3`}>{product.description}</p>
+                {product.variants && product.variants.length > 0 && (
+                  <div className="flex flex-col gap-2 mb-4">
+                    {product.variants.map(variant => (
+                      <Button
+                        key={variant.id}
+                        onClick={() => setSelectedVariants({
+                          ...selectedVariants,
+                          [product.id!]: variant
+                        })}
+                        className={`${poppins.className} w-full font-semibold border border-amber-500/30 text-amber-400 bg-neutral-800/50 hover:bg-amber-500 hover:text-black transition-all ${
+                          selectedVariants[product.id!]?.id === variant.id ? 'bg-amber-500 text-black' : ''
+                        }`}
+                      >
+                        {variant.variant_name} - ₾{variant.price.toFixed(2)}
+                      </Button>
+                    ))}
+                  </div>
+                )}
                 {/*<Button
                   onClick={() => addToCart(product)}
                   className={`${poppins.className} w-full font-semibold border border-amber-500 text-amber-400 bg-transparent hover:bg-amber-500 hover:text-black transition-all`}
@@ -303,7 +302,7 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
                       onChange={(e) => setBranchId(e.target.value)}
                       className={`${roboto.className} w-full p-2 border border-amber-500/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-800 text-amber-400`}
                     >
-                      <option value="">Select Branch</option>
+                      <option value="">Select a Branch</option>
                       {branches.map((branch) => (
                         <option key={branch.id} value={branch.id}>{branch.name}</option>
                       ))}
@@ -317,7 +316,7 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
                       Close
                     </Button>
                     <Button onClick={submitOrder} className={`${poppins.className} bg-amber-500 text-black hover:bg-amber-600`}>
-                      Confirm the Order
+                      Confirm Order
                     </Button>
                   </div>
                 </>
