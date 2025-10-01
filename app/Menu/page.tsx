@@ -3,12 +3,13 @@ import MenuClient from './menu';
 import { createSupabaseClient } from '@/lib/supabase-client';
 
 interface Product {
-  id?: number;
+  id?: string;
   name?: string;
-  price?: number;
   image_url?: string;
-  category_id?: number;
+  category_id?: string;
   description?: string;
+  price?: number; // Varyantsız ürünler için
+  variants?: { id: string; variant_name: string; price: number }[];
 }
 
 interface Branch {
@@ -22,7 +23,7 @@ async function getProducts(categorySlug: string): Promise<Product[]> {
       throw new Error("Supabase URL veya Anon Key eksik");
     }
 
-    let categoryId: number | null = null;
+    let categoryId: string | null = null;
     if (categorySlug !== 'all') {
       const categoryResponse = await fetch(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/categories?slug=eq.${categorySlug}&select=id`,
@@ -34,16 +35,22 @@ async function getProducts(categorySlug: string): Promise<Product[]> {
           cache: 'no-store',
         }
       );
-      if (!categoryResponse.ok) return [];
-      const categories = await categoryResponse.json() as { id: number }[];
-      if (!categories?.length) return [];
+      if (!categoryResponse.ok) {
+        console.error('Kategori alınamadı:', categoryResponse.status);
+        return [];
+      }
+      const categories = await categoryResponse.json() as { id: string }[];
+      if (!categories?.length) {
+        console.error('Kategori bulunamadı:', categorySlug);
+        return [];
+      }
       categoryId = categories[0].id;
     }
 
     const productQuery = categoryId
-      ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/products?category_id=eq.${categoryId}&select=id,name,price,image_url,category_id,description`
-      : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/products?select=id,name,price,image_url,category_id,description`;
-    
+      ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/products?category_id=eq.${categoryId}&select=id,name,image_url,category_id,description,price,variants:product_variants(id,variant_name,price)`
+      : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/products?select=id,name,image_url,category_id,description,price,variants:product_variants(id,variant_name,price)`;
+
     const productResponse = await fetch(productQuery, {
       headers: {
         apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -52,9 +59,15 @@ async function getProducts(categorySlug: string): Promise<Product[]> {
       cache: 'no-store',
     });
 
-    if (!productResponse.ok) return [];
-    return await productResponse.json() as Product[];
-  } catch {
+    if (!productResponse.ok) {
+      console.error('Ürünler alınamadı:', productResponse.status);
+      return [];
+    }
+    const products = await productResponse.json() as Product[];
+    console.log('Çekilen ürünler:', products); // Hata ayıklama için
+    return products;
+  } catch (error: any) {
+    console.error('Ürünleri çekerken hata:', error.message);
     return [];
   }
 }
@@ -74,6 +87,7 @@ export default async function MenuPage({ searchParams }: MenuPageProps) {
     .select('id, name');
 
   if (branchError) {
+    console.error('Şubeler alınamadı:', branchError.message);
     return <div className="text-red-500 text-center py-6">Şubeler yüklenemedi: {branchError.message}</div>;
   }
 

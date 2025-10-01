@@ -236,7 +236,7 @@ export default function Component() {
           className="w-full h-full absolute top-0 left-0 touch-none"
           aria-label="Interactive particle effect with Sapori Patisserie text"
         />
-        <div className="absolute bottom-[100px] text-center z-10">
+        {/*<div className="absolute bottom-[100px] text-center z-10">
           <p className="font-mono text-gray-400 text-xs sm:text-base md:text-sm">
             Built by{' '}
             <a href="https://github.com/loppocalypse" target='_blank'><span className="text-gray-300 hover:text-yellow-400 transition-colors duration-300">
@@ -244,7 +244,7 @@ export default function Component() {
             </span></a>
             <br /><span className="text-gray-500 text-xs mt-2.5 inline-block">V1.0</span>
           </p>
-        </div>
+        </div>*/}
       </div>
       </ThemeProvider>
   )
