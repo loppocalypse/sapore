@@ -73,7 +73,7 @@ export default function Report() {
   return (
     <>
       <ParticlesBackground particleCount={1500} noiseIntensity={0.0025} className="absolute inset-0 z-0" />
-      <main className="relative mt-8 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <main className="relative mt-8 min-h-screen flex items-center justify-center py-14 px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div className="relative z-10 max-w-[1000px] w-full space-y-8">
           <h1 className="text-4xl sm:text-5xl font-bold text-[#D4A017] tracking-tight font-serif text-center">
             Report an Issue with Cafe Sapore

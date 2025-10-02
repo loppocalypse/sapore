@@ -13,7 +13,7 @@ export default function Contact() {
   return (
     <>
       <StarsCanvas />
-      <main className="bg-transparent min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <main className="relative mt-8 min-h-screen flex items-center justify-center py-14 px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div className="max-w-[800px] w-full text-center space-y-8">
           {/* Başlık */}
           <h1 className={`${playfair.className} text-4xl sm:text-5xl font-bold text-[#D4A017] tracking-tight`}>
