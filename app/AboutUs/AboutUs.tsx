@@ -13,20 +13,20 @@ export default function Page() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const isMobile = window.innerWidth <= 768;
-      const overlayOpacity = isMobile ? 0.2 : 0.3 - scrollY * 0.0001; // Subtle overlay fade
+    const sections = document.querySelectorAll('.story-section');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        } else {
+          entry.target.classList.remove('visible');
+        }
+      });
+    }, { threshold: 0.2, rootMargin: '0px 0px -50px 0px' });
 
-      // Update background overlay opacity
-      const main = document.querySelector('main');
-      if (main) {
-        main.style.setProperty('--overlay-opacity', Math.max(0.1, overlayOpacity).toString());
-      }
-    };
+    sections.forEach(section => observer.observe(section));
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => observer.disconnect();
   }, []);
 
   return (
