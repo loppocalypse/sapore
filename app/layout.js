@@ -4,6 +4,7 @@ import { Metadata } from 'next';
 import Header from '@/app/_components/header'
 import "./globals.css";
 import { ClerkProvider, SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, } from '@clerk/nextjs';
+import { Suspense } from 'react';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,7 +26,11 @@ export default function RootLayout({ children }) {
     <ClerkProvider>
       <html lang="en" className="dark">
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <Provider>{children}</Provider>
+          <Suspense>
+            <Provider>
+              {children}
+            </Provider>
+          </Suspense>
         </body>
       </html>
     </ClerkProvider>

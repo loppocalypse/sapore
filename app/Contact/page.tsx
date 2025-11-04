@@ -1,5 +1,8 @@
 import Contact from '@/app/Contact/Contact';
+import { Suspense } from 'react';
 
 export default function ContactPage() {
-  return <Contact />;
+  return (
+    <Suspense><Contact /></Suspense>
+  )
 }

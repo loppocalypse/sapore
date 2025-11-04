@@ -1,6 +1,6 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import CategoryList from "@/app/_components/CategoryList";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,20 +8,44 @@ import { Button } from '@/components/ui/button';
 import Image from "next/image";
 import { ShoppingCart, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Playfair_Display, Roboto, Poppins } from 'next/font/google';
+import { Playfair_Display, Roboto, Poppins, Noto_Serif_Georgian, Amiri } from 'next/font/google';
+import { getTranslations, isRtl } from '@/lib/i18n';
 
 const playfair = Playfair_Display({ subsets: ['latin'], weight: '700' });
 const roboto = Roboto({ subsets: ['latin'], weight: '400' });
 const poppins = Poppins({ subsets: ['latin'], weight: '600' });
+const notoGeorgian = Noto_Serif_Georgian({ subsets: ['georgian'], weight: '400' });
+const amiri = Amiri({ subsets: ['arabic'], weight: '400' });
+
+interface Variant {
+  id: string;
+  variant_name: string;
+  variant_name_en: string;
+  variant_name_tr: string;
+  variant_name_ka: string;
+  variant_name_ru: string;
+  variant_name_ar: string;
+  price: number;
+}
 
 interface Product {
-  id?: string;
-  name?: string;
+  id: string;
+  name: string;
+  name_en: string;
+  name_tr: string;
+  name_ka: string;
+  name_ru: string;
+  name_ar: string;
   image_url?: string;
   category_id?: string;
   description?: string;
-  price?: number; // Varyantsız ürünler için
-  variants?: { id: string; variant_name: string; price: number }[];
+  description_en?: string;
+  description_tr?: string;
+  description_ka?: string;
+  description_ru?: string;
+  description_ar?: string;
+  price?: number;
+  variants?: Variant[];
 }
 
 interface CartItem {
@@ -42,39 +66,61 @@ interface MenuClientProps {
   products: Product[];
   branches: Branch[];
   error: string | null;
+  lang: string;
 }
 
-export default function MenuClient({ products, branches, error }: MenuClientProps) {
-  const searchParams = useSearchParams();
-  const selectedCategory = searchParams.get('category') || 'all';
+export default function MenuClient({ products, branches, error, lang }: MenuClientProps) {
+  const router = useRouter();
+  const t = getTranslations(lang);
+
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [tableNumber, setTableNumber] = useState<string>('');
   const [branchId, setBranchId] = useState<string>('');
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [selectedVariants, setSelectedVariants] = useState<{ [key: string]: { id: string; variant_name: string; price: number } }>({});
+  const [selectedVariants, setSelectedVariants] = useState<{ [key: string]: Variant }>({});
 
-  // Varsayılan olarak her ürünün ilk varyantını seç
+  const getFontClass = () => {
+    if (lang === 'ka') return notoGeorgian.className;
+    if (lang === 'ar') return amiri.className;
+    return roboto.className;
+  };
+
+  const getProductName = (product: Product): string => {
+    const key = `name_${lang}` as keyof Product;
+    return (product[key] as string) || product.name_en || product.name_tr || product.name_ka || product.name_ru || product.name_ar || product.name || t.error.noData;
+  };
+
+  const getProductDescription = (product: Product): string => {
+    const key = `description_${lang}` as keyof Product;
+    return (product[key] as string) || product.description_en || product.description_tr || product.description_ka || product.description_ru || product.description_ar || product.description || '';
+  };
+
+  const getVariantName = (variant: Variant): string => {
+    const key = `variant_name_${lang}` as keyof Variant;
+    return (variant[key] as string) || variant.variant_name_en || variant.variant_name_tr || variant.variant_name_ka || variant.variant_name_ru || variant.variant_name_ar || variant.variant_name || t.error.noData;
+  };
+
   useEffect(() => {
-    const initialVariants: { [key: string]: { id: string; variant_name: string; price: number } } = {};
+    const initialVariants: { [key: string]: Variant } = {};
     products.forEach(product => {
       if (product.id && product.variants && product.variants.length > 0) {
         initialVariants[product.id] = product.variants[0];
       }
-      console.log(`Ürün: ${product.name}, Price: ${product.price}, Variants:`, product.variants); // Hata ayıklama
+      console.log(`Ürün: ${getProductName(product)}, Price: ${product.price}, Variants:`, product.variants);
     });
     setSelectedVariants(initialVariants);
-  }, [products]);
+  }, [products, lang]);
 
   const addToCart = (product: Product) => {
-    if (!product.id || !product.name) {
-      setSubmitError('Ürün bilgisi eksik');
+    if (!product.id || !getProductName(product)) {
+      setSubmitError(t.error.missingProductInfo);
       return;
     }
     if (product.variants && product.variants.length > 0) {
       const selectedVariant = selectedVariants[product.id];
       if (!selectedVariant) {
-        setSubmitError('Please Select a Variant');
+        setSubmitError(t.error.selectVariant);
         return;
       }
       const existingItem = cart.find(item => item.product_id === product.id && item.variant_id === selectedVariant.id);
@@ -88,10 +134,10 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
         setCart([...cart, {
           product_id: product.id,
           variant_id: selectedVariant.id,
-          variant_name: selectedVariant.variant_name,
+          variant_name: getVariantName(selectedVariant),
           quantity: 1,
           price: selectedVariant.price,
-          name: product.name
+          name: getProductName(product),
         }]);
       }
     } else if (typeof product.price === 'number' && product.price > 0) {
@@ -107,12 +153,11 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
           product_id: product.id,
           quantity: 1,
           price: product.price,
-          name: product.name
+          name: getProductName(product),
         }]);
       }
     } else {
-      setSubmitError(`Fiyat bilgisi eksik: ${product.name}`);
-      console.error(`Fiyat eksik: ${product.name}, Price: ${product.price}`);
+      setSubmitError(t.error.priceMissing.replace('{product}', getProductName(product)));
     }
   };
 
@@ -130,22 +175,21 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
     return cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
   };
 
-  const submitOrder = async () => {
+  /*const submitOrder = async () => {
     if (!tableNumber || isNaN(parseInt(tableNumber)) || parseInt(tableNumber) <= 0) {
-      setSubmitError('Please Select a Valid Table Number');
+      setSubmitError(t.error.invalidTableNumber);
       return;
     }
     if (!branchId) {
-      setSubmitError('Please Select a Branch');
+      setSubmitError(t.error.selectBranch);
       return;
     }
     if (cart.length === 0) {
-      setSubmitError('Your Cart is Empty');
+      setSubmitError(t.error.emptyCart);
       return;
     }
 
     try {
-      console.log('Sending order:', { table_no: parseInt(tableNumber), items: cart, branch_id: branchId });
       const response = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -157,31 +201,30 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
         setTableNumber('');
         setBranchId('');
         setIsCartOpen(false);
-        alert('Successfully Ordered!');
+        alert(t.orderSuccess || 'Successfully Ordered!');
       } else {
-        throw new Error(result.error || 'Can Not Create The Order');
+        throw new Error(result.error || t.error.orderFailed);
       }
     } catch (error: any) {
-      console.error('Order Error:', error.message);
-      setSubmitError(`Could Not Order: ${error.message}`);
+      setSubmitError(t.error.orderFailed.replace('{message}', error.message));
     }
-  };
+  };*/
 
   if (error || submitError) {
-    return <div className="text-red-500 text-center py-6">{error || submitError}</div>;
+    return <div className={`${getFontClass()} text-red-500 text-center py-6`}>{error || submitError}</div>;
   }
 
   if (!products.length && !branches.length) {
-    return <div className="text-center py-6 text-gray-300">Info Not Found</div>;
+    return <div className={`${getFontClass()} text-center py-6 text-gray-300`}>{t.error.noData}</div>;
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-black via-neutral-900 to-black text-white overflow-hidden">
+    <div className={`container mx-auto py-8 px-4 bg-gradient-to-br from-black via-neutral-900 to-black text-white overflow-hidden ${getFontClass()}`} dir={isRtl(lang) ? 'rtl' : 'ltr'}>
       <CategoryList />
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 mt-10">
         {products.map((product, index) => (
           <motion.div
-            key={product.id || index}
+            key={product.id || `product-${index}`}
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: "spring", stiffness: 100, damping: 15, delay: index * 0.08 }}
@@ -190,26 +233,26 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
               <div className="relative group">
                 <Image
                   src={product.image_url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c'}
-                  alt={product.name || 'Ürün'}
+                  alt={getProductName(product)}
                   width={400}
                   height={300}
                   className="w-full h-60 object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <span className={`${poppins.className} absolute top-3 right-3 px-4 py-1 rounded-lg text-sm font-semibold shadow-lg backdrop-blur-md bg-white/10 text-amber-400 border border-amber-500/30`}>
-                  {product.variants && product.variants.length > 0 && selectedVariants[product.id!]
-                    ? `₾${selectedVariants[product.id!].price.toFixed(2)}`
+                  {product.variants && product.variants.length > 0 && selectedVariants[product.id]
+                    ? `₾${selectedVariants[product.id].price.toFixed(2)}`
                     : typeof product.price === 'number' && product.price > 0
                       ? `₾${product.price.toFixed(2)}`
-                      : 'Fiyat mevcut değil'}
+                      : t.error.priceMissing.replace('{product}', getProductName(product))}
                 </span>
               </div>
               <CardHeader className="pb-0">
                 <CardTitle className={`${playfair.className} text-xl font-playfair text-amber-400`}>
-                  {product.name}
+                  {getProductName(product)}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className={`${roboto.className} text-gray-300 text-sm mb-4 line-clamp-3`}>{product.description}</p>
+                <p className={`${roboto.className} text-gray-300 text-sm mb-4 line-clamp-3`}>{getProductDescription(product)}</p>
                 {product.variants && product.variants.length > 0 && (
                   <div className="flex flex-col gap-2 mb-4">
                     {product.variants.map(variant => (
@@ -217,13 +260,13 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
                         key={variant.id}
                         onClick={() => setSelectedVariants({
                           ...selectedVariants,
-                          [product.id!]: variant
+                          [product.id]: variant,
                         })}
                         className={`${poppins.className} w-full font-semibold border border-amber-500/30 text-amber-400 bg-neutral-800/50 hover:bg-amber-500 hover:text-black transition-all ${
-                          selectedVariants[product.id!]?.id === variant.id ? 'bg-amber-500 text-black' : ''
+                          selectedVariants[product.id]?.id === variant.id ? 'bg-amber-500 text-black' : ''
                         }`}
                       >
-                        {variant.variant_name} - ₾{variant.price.toFixed(2)}
+                        {getVariantName(variant)} - ₾{variant.price.toFixed(2)}
                       </Button>
                     ))}
                   </div>
@@ -232,7 +275,7 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
                   onClick={() => addToCart(product)}
                   className={`${poppins.className} w-full font-semibold border border-amber-500 text-amber-400 bg-transparent hover:bg-amber-500 hover:text-black transition-all`}
                 >
-                  Add to Cart
+                  {t.addToCart}
                 </Button>*/}
               </CardContent>
             </Card>
@@ -244,7 +287,7 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
           onClick={() => setIsCartOpen(true)}
           className={`${poppins.className} fixed bottom-6 right-6 rounded-3xl w-16 h-16 flex items-center justify-center shadow-lg hover:scale-110 transition bg-amber-500 text-black`}
         >
-          <ShoppingCart size={22} />
+          {/*<ShoppingCart size={22} />*/}
           <span className="absolute -top-2 -right-2 bg-black text-amber-400 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold border border-amber-400">
             {cart.reduce((total, item) => total + item.quantity, 0)}
           </span>
@@ -260,64 +303,66 @@ export default function MenuClient({ products, branches, error }: MenuClientProp
           >
             <div className="bg-neutral-900/80 backdrop-blur-md p-6 rounded-2xl shadow-xl w-full max-w-md border border-[rgba(212,175,55,0.4)]">
               <div className="flex justify-between items-center mb-4">
-                <h2 className={`${playfair.className} text-lg font-playfair text-amber-400`}>Your Cart</h2>
+                <h2 className={`${playfair.className} text-lg font-playfair text-amber-400`}>{t.cart}</h2>
                 <Button onClick={() => setIsCartOpen(false)} variant="ghost" className={`${poppins.className} hover:bg-neutral-800 text-gray-300`}>
                   <X />
                 </Button>
               </div>
               {cart.length === 0 ? (
-                <p className={`${roboto.className} text-gray-300`}>Empty Cart.</p>
+                <p className={`${getFontClass()} text-gray-300`}>{t.cartEmpty}</p>
               ) : (
                 <>
                   <div className="space-y-3">
                     {cart.map((item) => (
                       <div key={`${item.product_id}-${item.variant_id || 'no-variant'}`} className="flex justify-between items-center">
-                        <span className={`${roboto.className} text-amber-400`}>{item.name}{item.variant_name ? ` (${item.variant_name})` : ''} x{item.quantity}</span>
+                        <span className={`${getFontClass()} text-amber-400`}>{item.name}{item.variant_name ? ` (${item.variant_name})` : ''} x{item.quantity}</span>
                         <div className="flex items-center">
                           <Button onClick={() => updateQuantity(item.product_id, item.variant_id, -1)} className={`${poppins.className} px-2 py-1 bg-neutral-800 text-amber-400`} variant="outline">-</Button>
                           <span className={`${poppins.className} mx-2 font-semibold text-amber-400`}>{item.quantity}</span>
                           <Button onClick={() => updateQuantity(item.product_id, item.variant_id, 1)} className={`${poppins.className} px-2 py-1 bg-neutral-800 text-amber-400`} variant="outline">+</Button>
-                          <span className={`${roboto.className} ml-4 font-semibold text-amber-400`}>₾{(item.price * item.quantity).toFixed(2)}</span>
+                          <span className={`${getFontClass()} ml-4 font-semibold text-amber-400`}>₾{(item.price * item.quantity).toFixed(2)}</span>
                         </div>
                       </div>
                     ))}
                   </div>
                   <div className="mt-4">
-                    <label className={`${playfair.className} block mb-2 text-amber-400 font-medium`}>Table No:</label>
+                    <label className={`${playfair.className} block mb-2 text-amber-400 font-medium`}>{t.tableNumber}</label>
                     <select
                       value={tableNumber}
                       onChange={(e) => setTableNumber(e.target.value)}
-                      className={`${roboto.className} w-full p-2 border border-amber-500/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-800 text-amber-400`}
+                      className={`${getFontClass()} w-full p-2 border border-amber-500/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-800 text-amber-400`}
                     >
-                      <option value="">Select a Table</option>
+                      <option value="">{t.selectTable}</option>
                       {[...Array(20).keys()].map(i => (
-                        <option key={i + 1} value={i + 1}>Table {i + 1}</option>
+                        <option key={i + 1} value={i + 1}>
+                          {lang === 'en' ? `Table ${i + 1}` : lang === 'tr' ? `Masa ${i + 1}` : lang === 'ka' ? `მაგიდა ${i + 1}` : lang === 'ru' ? `Стол ${i + 1}` : `طاولة ${i + 1}`}
+                        </option>
                       ))}
                     </select>
                   </div>
                   <div className="mt-4">
-                    <label className={`${playfair.className} block mb-2 text-amber-400 font-medium`}>Branch:</label>
+                    <label className={`${playfair.className} block mb-2 text-amber-400 font-medium`}>{t.branch}</label>
                     <select
                       value={branchId}
                       onChange={(e) => setBranchId(e.target.value)}
-                      className={`${roboto.className} w-full p-2 border border-amber-500/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-800 text-amber-400`}
+                      className={`${getFontClass()} w-full p-2 border border-amber-500/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-800 text-amber-400`}
                     >
-                      <option value="">Select a Branch</option>
+                      <option value="">{t.selectBranch}</option>
                       {branches.map((branch) => (
                         <option key={branch.id} value={branch.id}>{branch.name}</option>
                       ))}
                     </select>
                   </div>
                   <div className={`${poppins.className} mt-4 text-lg font-bold text-amber-400`}>
-                    Total: ₾{calculateTotal()}
+                    {t.total}: ₾{calculateTotal()}
                   </div>
                   <div className="mt-6 flex justify-end gap-3">
                     <Button onClick={() => setIsCartOpen(false)} variant="outline" className={`${poppins.className} text-amber-400 border-amber-500/30 hover:bg-neutral-800`}>
-                      Close
+                      {t.close}
                     </Button>
-                    <Button onClick={submitOrder} className={`${poppins.className} bg-amber-500 text-black hover:bg-amber-600`}>
-                      Confirm Order
-                    </Button>
+                    {/*<Button onClick={submitOrder} className={`${poppins.className} bg-amber-500 text-black hover:bg-amber-600`}>
+                      {t.confirmOrder}
+                    </Button>*/}
                   </div>
                 </>
               )}

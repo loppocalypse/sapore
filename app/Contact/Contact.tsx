@@ -2,27 +2,41 @@
 
 import { Mail, Phone, Instagram, Twitter, Music2, MapPinned } from 'lucide-react';
 import StarsCanvas from '@/app/StarsBG/StarBackground';
-import { Playfair_Display, Roboto, Poppins } from 'next/font/google';
+import { Playfair_Display, Roboto, Poppins, Noto_Serif_Georgian, Amiri } from 'next/font/google';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { getTranslations, isRtl } from '@/lib/i18n';
 
 const playfair = Playfair_Display({ subsets: ['latin'], weight: '700' });
 const roboto = Roboto({ subsets: ['latin'], weight: '400' });
 const poppins = Poppins({ subsets: ['latin'], weight: '600' });
+const notoGeorgian = Noto_Serif_Georgian({ subsets: ['georgian'], weight: '400' });
+const amiri = Amiri({ subsets: ['arabic'], weight: '400' });
 
 export default function Contact() {
+  const searchParams = useSearchParams();
+  const lang = searchParams.get('lang') || 'en';
+  const t = getTranslations(lang);
+
+  const getFontClass = () => {
+    if (lang === 'ka') return notoGeorgian.className;
+    if (lang === 'ar') return amiri.className;
+    return roboto.className;
+  };
+
   return (
     <>
       <StarsCanvas />
-      <main className="relative mt-8 min-h-screen flex items-center justify-center py-14 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <main className={`relative mt-8 min-h-screen flex items-center justify-center py-14 px-4 sm:px-6 lg:px-8 overflow-hidden ${getFontClass()}`} dir={isRtl(lang) ? 'rtl' : 'ltr'}>
         <div className="max-w-[800px] w-full text-center space-y-8">
           {/* Başlık */}
           <h1 className={`${playfair.className} text-4xl sm:text-5xl font-bold text-[#D4A017] tracking-tight`}>
-            Get in Touch with Us
+            {t.contact?.title || 'Get in Touch with Us'}
           </h1>
 
           {/* Açıklama */}
           <p className={`${roboto.className} text-lg sm:text-xl text-gray-400 max-w-xl mx-auto`}>
-            Join us at Cafe Sapore for a delightful experience. Reach out to share your thoughts, make a reservation, or just say hello!
+            {t.contact?.description || 'Join us at Cafe Sapore for a delightful experience...'}
           </p>
 
           {/* İletişim Bilgileri */}
@@ -30,10 +44,10 @@ export default function Contact() {
             <div className="flex items-center justify-center space-x-3">
               <Phone className="h-6 w-6 text-[#D4A017]" />
               <Link
-                href="tel:+995 599 64 20 08"
+                href="tel:+995599642008"
                 className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
               >
-                +995 599 64 20 08
+                {t.contact?.phone || '+995 599 64 20 08'}
               </Link>
             </div>
             <div className="flex items-center justify-center space-x-3">
@@ -42,7 +56,7 @@ export default function Contact() {
                 href="mailto:saporegeo@gmail.com"
                 className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
               >
-                saporegeo@gmail.com
+                {t.contact?.email || 'saporegeo@gmail.com'}
               </Link>
             </div>
             <div className="flex items-center justify-center space-x-3">
@@ -53,7 +67,7 @@ export default function Contact() {
                 rel="noopener noreferrer"
                 className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
               >
-                @sapore.tbilisi
+                {t.contact?.instagram || '@sapore.tbilisi'}
               </Link>
             </div>
             <div className="flex items-center justify-center space-x-3">
@@ -64,7 +78,7 @@ export default function Contact() {
                 rel="noopener noreferrer"
                 className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
               >
-                @cafesaporetbilisi
+                {t.contact?.tiktok || '@cafesaporetbilisi'}
               </Link>
             </div>
           </div>
@@ -79,7 +93,7 @@ export default function Contact() {
                 rel="noopener noreferrer"
                 className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
               >
-                Ialbuzi 9
+                {t.contact?.address.ialbuzi9 || 'Ialbuzi 9'}
               </Link>
             </div>
             <div className="flex items-center justify-center space-x-3">
@@ -90,7 +104,7 @@ export default function Contact() {
                 rel="noopener noreferrer"
                 className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
               >
-                Kote Apkhazis 31
+                {t.contact?.address.koteApkhazis31 || 'Kote Apkhazis 31'}
               </Link>
             </div>
             <div className="flex items-center justify-center space-x-3">
@@ -101,7 +115,7 @@ export default function Contact() {
                 rel="noopener noreferrer"
                 className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
               >
-                Davit Aghmashenebeli Ave. 95
+                {t.contact?.address.davitAghmashenebeli95 || 'Davit Aghmashenebeli Ave. 95'}
               </Link>
             </div>
             <div className="flex items-center justify-center space-x-3">
@@ -112,7 +126,7 @@ export default function Contact() {
                 rel="noopener noreferrer"
                 className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
               >
-                Davit Aghmashenebeli Ave. 134
+                {t.contact?.address.davitAghmashenebeli134 || 'Davit Aghmashenebeli Ave. 134'}
               </Link>
             </div>
           </div>
