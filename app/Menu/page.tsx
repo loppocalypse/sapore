@@ -104,7 +104,7 @@ interface MenuPageProps {
 export default async function MenuPage({ searchParams }: MenuPageProps) {
   const resolvedSearchParams = await searchParams;
   const selectedCategory = (resolvedSearchParams.category as string) || 'all';
-  const lang = (resolvedSearchParams.lang as string) || 'tr';
+  const lang = (resolvedSearchParams.lang as string) || 'en';
   const products = await getProducts(selectedCategory, lang);
 
   const supabase = createSupabaseClient();
