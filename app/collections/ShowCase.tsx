@@ -57,7 +57,7 @@ export default function Showcase({ products }: any) {
     { 
       title: t.showcase.categories.cookies, 
       slug: "cookies", 
-      img: "/cookies.png", 
+      img: "/Cookies.png", 
       desc: t.showcase.descriptions.cookies 
     },
   ];
