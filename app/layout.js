@@ -5,6 +5,7 @@ import Header from '@/app/_components/header'
 import "./globals.css";
 import { ClerkProvider, SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, } from '@clerk/nextjs';
 import { Suspense } from 'react';
+import HeaderSection from "./_components/HeaderSection";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,10 +25,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
-      <html lang="en" className="dark">
+      <html lang="en" className="light">
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <Suspense>
             <Provider>
+              <HeaderSection lang="en" />
               {children}
             </Provider>
           </Suspense>

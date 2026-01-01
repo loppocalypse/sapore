@@ -1,251 +1,74 @@
 'use client'
-
-import React, { useRef, useEffect, useState } from 'react'
+import React from 'react'
+import { motion } from 'framer-motion'
+import { Playfair_Display } from 'next/font/google'
+import { useSearchParams } from 'next/navigation'
+import { getTranslations } from '@/lib/i18n'
 import Link from 'next/link'
-import { ClerkProvider, SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, } from '@clerk/nextjs';
-import { ThemeProvider } from 'next-themes';
 
-export default function Component() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const mousePositionRef = useRef({ x: 0, y: 0 })
-  const isTouchingRef = useRef(false)
-  const [isMobile, setIsMobile] = useState(false)
+const playfair = Playfair_Display({ subsets: ['latin'], weight: '700' });
 
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    const updateCanvasSize = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
-      setIsMobile(window.innerWidth < 768)
-    }
-
-    updateCanvasSize()
-
-    let particles: {
-      x: number
-      y: number
-      baseX: number
-      baseY: number
-      size: number
-      color: string
-      scatteredColor: string
-      life: number
-    }[] = []
-
-    let textImageData: ImageData | null = null
-
-    function createTextImage() {
-      if (!ctx || !canvas) return 0
-
-      ctx.save()
-
-      // Remove the rectangle shape completely
-      // Draw "SAPORE" text with shadow for better contrast
-      const logoHeight = isMobile ? 60 : 120
-      ctx.font = `${isMobile ? 40 : 80}px serif`
-      ctx.fillStyle = '#D4A017' // Gold color
-      ctx.textAlign = 'center'
-      ctx.shadowColor = 'black'
-      ctx.shadowBlur = 5
-      ctx.shadowOffsetX = 2
-      ctx.shadowOffsetY = 2
-      ctx.fillText('SAPORE', canvas.width / 2, canvas.height / 2 + 10)
-      ctx.shadowBlur = 0 // Reset shadow
-
-      // Draw "PATTISSERIE" text
-      ctx.font = `${isMobile ? 20 : 40}px serif`
-      ctx.fillStyle = '#D4A017'
-      ctx.fillText('PATISSERIE', canvas.width / 2, canvas.height / 2 + 40)
-
-      // Draw "SINCE 2008" text
-      ctx.font = `${isMobile ? 15 : 30}px sans-serif`
-      ctx.fillStyle = '#A52A2A' // Maroon color
-      ctx.fillText('SINCE 2008', canvas.width / 2, canvas.height / 2 + 70)
-
-      ctx.restore()
-
-      textImageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-      return 1 // Scale factor
-    }
-
-    function createParticle(scale: number) {
-      if (!ctx || !canvas || !textImageData) return null
-
-      const data = textImageData.data
-      const particleGap = 2
-
-      for (let attempt = 0; attempt < 100; attempt++) {
-        const x = Math.floor(Math.random() * canvas.width)
-        const y = Math.floor(Math.random() * canvas.height)
-
-        if (data[(y * canvas.width + x) * 4 + 3] > 128) {
-          return {
-            x: x,
-            y: y,
-            baseX: x,
-            baseY: y,
-            size: Math.random() * 1 + 0.5,
-            color: '#D4A017',
-            scatteredColor: '#FFD700',
-            life: Math.random() * 100 + 50
-          }
-        }
-      }
-
-      return null
-    }
-
-    function createInitialParticles(scale: number) {
-      const canvas = canvasRef.current; // Get canvas from ref
-      if (!canvas) return; // Exit if canvas is null
-
-      const baseParticleCount = 7000;
-      const particleCount = Math.floor(baseParticleCount * Math.sqrt((canvas.width * canvas.height) / (1920 * 1080)));
-      for (let i = 0; i < particleCount; i++) {
-        const particle = createParticle(scale);
-        if (particle) particles.push(particle);
-      }
-    }
-
-    let animationFrameId: number
-
-    function animate(scale: number) {
-      if (!ctx || !canvas) return
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      ctx.fillStyle = 'black'
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-      const { x: mouseX, y: mouseY } = mousePositionRef.current
-      const maxDistance = 240
-
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i]
-        const dx = mouseX - p.x
-        const dy = mouseY - p.y
-        const distance = Math.sqrt(dx * dx + dy * dy)
-
-        if (distance < maxDistance && (isTouchingRef.current || !('ontouchstart' in window))) {
-          const force = (maxDistance - distance) / maxDistance
-          const angle = Math.atan2(dy, dx)
-          const moveX = Math.cos(angle) * force * 60
-          const moveY = Math.sin(angle) * force * 60
-          p.x = p.baseX - moveX
-          p.y = p.baseY - moveY
-          ctx.fillStyle = p.scatteredColor
-        } else {
-          p.x += (p.baseX - p.x) * 0.1
-          p.y += (p.baseY - p.y) * 0.1
-          ctx.fillStyle = p.color
-        }
-
-        ctx.fillRect(p.x, p.y, p.size, p.size)
-
-        p.life--
-        if (p.life <= 0) {
-          const newParticle = createParticle(scale)
-          if (newParticle) {
-            particles[i] = newParticle
-          } else {
-            particles.splice(i, 1)
-            i--
-          }
-        }
-      }
-
-      const baseParticleCount = 7000
-      const targetParticleCount = Math.floor(baseParticleCount * Math.sqrt((canvas.width * canvas.height) / (1920 * 1080)))
-      while (particles.length < targetParticleCount) {
-        const newParticle = createParticle(scale)
-        if (newParticle) particles.push(newParticle)
-      }
-
-      animationFrameId = requestAnimationFrame(() => animate(scale))
-    }
-
-    const scale = createTextImage()
-    createInitialParticles(scale)
-    animate(scale)
-
-    const handleResize = () => {
-      updateCanvasSize()
-      const newScale = createTextImage()
-      particles = []
-      createInitialParticles(newScale)
-    }
-
-    const handleMove = (x: number, y: number) => {
-      mousePositionRef.current = { x, y }
-    }
-
-    const handleMouseMove = (e: MouseEvent) => {
-      handleMove(e.clientX, e.clientY)
-    }
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        e.preventDefault()
-        handleMove(e.touches[0].clientX, e.touches[0].clientY)
-      }
-    }
-
-    const handleTouchStart = () => {
-      isTouchingRef.current = true
-    }
-
-    const handleTouchEnd = () => {
-      isTouchingRef.current = false
-      mousePositionRef.current = { x: 0, y: 0 }
-    }
-
-    const handleMouseLeave = () => {
-      if (!('ontouchstart' in window)) {
-        mousePositionRef.current = { x: 0, y: 0 }
-      }
-    }
-
-    window.addEventListener('resize', handleResize)
-    canvas.addEventListener('mousemove', handleMouseMove)
-    canvas.addEventListener('touchmove', handleTouchMove, { passive: false })
-    canvas.addEventListener('mouseleave', handleMouseLeave)
-    canvas.addEventListener('touchstart', handleTouchStart)
-    canvas.addEventListener('touchend', handleTouchEnd)
-
-    return () => {
-      window.removeEventListener('resize', handleResize)
-      canvas.removeEventListener('mousemove', handleMouseMove)
-      canvas.removeEventListener('touchmove', handleTouchMove)
-      canvas.removeEventListener('mouseleave', handleMouseLeave)
-      canvas.removeEventListener('touchstart', handleTouchStart)
-      canvas.removeEventListener('touchend', handleTouchEnd)
-      cancelAnimationFrame(animationFrameId)
-    }
-  }, [isMobile])
+export default function LandingPage() {
+  const searchParams = useSearchParams();
+  const lang = searchParams.get('lang') || 'en';
+  const t = getTranslations(lang);
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark">
-      <div className="relative w-full h-dvh flex flex-col items-center justify-center bg-black">
-        <canvas 
-          ref={canvasRef} 
-          className="w-full h-full absolute top-0 left-0 touch-none"
-          aria-label="Interactive particle effect with Sapori Patisserie text"
-        />
-        {/*<div className="absolute bottom-[100px] text-center z-10">
-          <p className="font-mono text-gray-400 text-xs sm:text-base md:text-sm">
-            Built by{' '}
-            <a href="https://github.com/loppocalypse" target='_blank'><span className="text-gray-300 hover:text-yellow-400 transition-colors duration-300">
-              loppocalypse
-            </span></a>
-            <br /><span className="text-gray-500 text-xs mt-2.5 inline-block">V1.0</span>
-          </p>
-        </div>*/}
-      </div>
-      </ThemeProvider>
+    <main className="relative min-h-screen bg-[#fdfaf5] flex flex-col items-center justify-center">
+      {/* Background Texture */}
+      <div className="absolute inset-0 opacity-[0.05] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')]" />
+
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.2 }}
+        className="text-center z-10 px-6"
+      >
+        {/* Heritage Subtitle */}
+        <span className="text-[#8a1a21] text-[10px] md:text-xs tracking-[0.6em] uppercase mb-4 block font-semibold">
+          {t.home?.subtitle || "Heritage of Traditional Flavors"}
+        </span>
+        
+        {/* Brand Name */}
+        <h1 className={`${playfair.className} text-6xl md:text-9xl text-[#2d1b11] mb-6 tracking-tight`}>
+          Sapore
+        </h1>
+        
+        {/* Decorative Line */}
+        <div className="w-24 h-[1px] bg-[#d4a017] mx-auto mb-8" />
+        
+        {/* Slogan / Description */}
+        <p className="max-w-xl mx-auto text-[#634832] text-base md:text-xl leading-relaxed italic font-serif mb-12">
+          {t.home?.description || `"Since 2008, we preserve a story in every recipe and a heritage in every bite."`}
+        </p>
+        
+        {/* Action Buttons */}
+        <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
+          <Link 
+            href={`/collections?lang=${lang}`}
+            className="w-full md:w-auto px-12 py-4 bg-[#8a1a21] text-white text-[11px] uppercase tracking-[0.3em] hover:bg-[#6b1419] transition-all duration-500 shadow-xl text-center"
+          >
+            {t.home?.discoverMenu || "Discover The Menu"}
+          </Link>
+          
+          <Link 
+            href={`/History?lang=${lang}`}
+            className="w-full md:w-auto px-12 py-4 border border-[#8a1a21] text-[#8a1a21] text-[11px] uppercase tracking-[0.3em] hover:bg-[#8a1a21] hover:text-white transition-all duration-500 text-center"
+          >
+            {t.home?.ourHeritage || "Our Heritage"}
+          </Link>
+        </div>
+      </motion.div>
+
+      {/* Decorative Bottom Detail */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.4 }}
+        transition={{ delay: 1, duration: 2 }}
+        className="absolute bottom-10 left-1/2 -translate-x-1/2"
+      >
+        <div className="w-[1px] h-20 bg-gradient-to-b from-[#d4a017] to-transparent" />
+      </motion.div>
+    </main>
   )
 }

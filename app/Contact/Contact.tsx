@@ -1,15 +1,13 @@
 'use client'
 
-import { Mail, Phone, Instagram, Twitter, Music2, MapPinned } from 'lucide-react';
-import StarsCanvas from '@/app/StarsBG/StarBackground';
-import { Playfair_Display, Roboto, Poppins, Noto_Serif_Georgian, Amiri } from 'next/font/google';
+import { Mail, Phone, Instagram, Music2, MapPinned } from 'lucide-react';
+import { Playfair_Display, Roboto, Noto_Serif_Georgian, Amiri } from 'next/font/google';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { getTranslations, isRtl } from '@/lib/i18n';
 
-const playfair = Playfair_Display({ subsets: ['latin'], weight: '700' });
-const roboto = Roboto({ subsets: ['latin'], weight: '400' });
-const poppins = Poppins({ subsets: ['latin'], weight: '600' });
+const playfair = Playfair_Display({ subsets: ['latin'], weight: ['400', '700'] });
+const roboto = Roboto({ subsets: ['latin'], weight: ['300', '400', '700'] });
 const notoGeorgian = Noto_Serif_Georgian({ subsets: ['georgian'], weight: '400' });
 const amiri = Amiri({ subsets: ['arabic'], weight: '400' });
 
@@ -25,113 +23,97 @@ export default function Contact() {
   };
 
   return (
-    <>
-      <StarsCanvas />
-      <main className={`relative mt-8 min-h-screen flex items-center justify-center py-14 px-4 sm:px-6 lg:px-8 overflow-hidden ${getFontClass()}`} dir={isRtl(lang) ? 'rtl' : 'ltr'}>
-        <div className="max-w-[800px] w-full text-center space-y-8">
-          {/* Başlık */}
-          <h1 className={`${playfair.className} text-4xl sm:text-5xl font-bold text-[#D4A017] tracking-tight`}>
-            {t.contact?.title || 'Get in Touch with Us'}
+    <main className={`relative min-h-screen bg-white text-[#2d1b11] py-20 px-4 sm:px-6 lg:px-8 ${getFontClass()}`} dir={isRtl(lang) ? 'rtl' : 'ltr'}>
+      <div className="max-w-5xl mx-auto">
+        
+        {/* Başlık Bölümü */}
+        <div className="text-center mb-16 border-b border-gray-100 pb-12">
+          <h1 className={`${playfair.className} text-4xl sm:text-5xl font-normal text-[#2d1b11] mb-6`}>
+            {t.contact?.title || 'Get in Touch'}
           </h1>
-
-          {/* Açıklama */}
-          <p className={`${roboto.className} text-lg sm:text-xl text-gray-400 max-w-xl mx-auto`}>
-            {t.contact?.description || 'Join us at Cafe Sapore for a delightful experience...'}
+          <div className="w-16 h-[1px] bg-[#8a1a21] mx-auto mb-6" />
+          <p className="text-gray-500 max-w-2xl mx-auto leading-relaxed italic">
+            {t.contact?.description}
           </p>
-
-          {/* İletişim Bilgileri */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-lg mx-auto">
-            <div className="flex items-center justify-center space-x-3">
-              <Phone className="h-6 w-6 text-[#D4A017]" />
-              <Link
-                href="tel:+995599642008"
-                className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
-              >
-                {t.contact?.phone || '+995 599 64 20 08'}
-              </Link>
-            </div>
-            <div className="flex items-center justify-center space-x-3">
-              <Mail className="h-6 w-6 text-[#D4A017]" />
-              <Link
-                href="mailto:saporegeo@gmail.com"
-                className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
-              >
-                {t.contact?.email || 'saporegeo@gmail.com'}
-              </Link>
-            </div>
-            <div className="flex items-center justify-center space-x-3">
-              <Instagram className="h-6 w-6 text-[#D4A017]" />
-              <Link
-                href="https://www.instagram.com/sapore.tbilisi"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
-              >
-                {t.contact?.instagram || '@sapore.tbilisi'}
-              </Link>
-            </div>
-            <div className="flex items-center justify-center space-x-3">
-              <Music2 className="h-6 w-6 text-[#D4A017]" />
-              <Link
-                href="https://www.tiktok.com/@cafesaporetbilisi"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
-              >
-                {t.contact?.tiktok || '@cafesaporetbilisi'}
-              </Link>
-            </div>
-          </div>
-
-          {/* Adresler */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-lg mx-auto py-10">
-            <div className="flex items-center justify-center space-x-3">
-              <MapPinned className="h-6 w-6 text-[#D4A017]" />
-              <Link
-                href="https://maps.app.goo.gl/gGNgvUoUkFdBsSr99?g_st=ipc"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
-              >
-                {t.contact?.address.ialbuzi9 || 'Ialbuzi 9'}
-              </Link>
-            </div>
-            <div className="flex items-center justify-center space-x-3">
-              <MapPinned className="h-6 w-6 text-[#D4A017]" />
-              <Link
-                href="https://maps.app.goo.gl/55mvP7L2LGGHJZFq5?g_st=ipc"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
-              >
-                {t.contact?.address.koteApkhazis31 || 'Kote Apkhazis 31'}
-              </Link>
-            </div>
-            <div className="flex items-center justify-center space-x-3">
-              <MapPinned className="h-6 w-6 text-[#D4A017]" />
-              <Link
-                href="https://maps.app.goo.gl/oLZQS1bcdAQUwZZx7"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
-              >
-                {t.contact?.address.davitAghmashenebeli95 || 'Davit Aghmashenebeli Ave. 95'}
-              </Link>
-            </div>
-            <div className="flex items-center justify-center space-x-3">
-              <MapPinned className="h-6 w-6 text-[#D4A017]" />
-              <Link
-                href="https://maps.google.com/?ftid=0x40440df438d5e0ad:0x3296d3bc35dbe775&entry=gps&lucs=,94284463,94224825,94227247,94227248,94231188,94280568,47071704,47069508,94218641,94282134,94203019,47084304,94286863&g_st=ipc"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${roboto.className} text-gray-500 text-base sm:text-lg hover:text-orange-400 transition-colors`}
-              >
-                {t.contact?.address.davitAghmashenebeli134 || 'Davit Aghmashenebeli Ave. 134'}
-              </Link>
-            </div>
-          </div>
         </div>
-      </main>
-    </>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
+          
+          {/* Sol Kolon: İletişim Bilgileri */}
+          <div className="space-y-12">
+            <section>
+              <h2 className={`${playfair.className} text-2xl border-l-4 border-[#8a1a21] pl-4 uppercase tracking-widest text-[#2d1b11] mb-8`}>
+                {/* Burayı i18n 'Customer Service' anahtara bağla */}
+                Customer Service
+              </h2>
+              <div className="space-y-6">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 bg-gray-50 rounded-full text-[#8a1a21]">
+                    <Phone className="h-5 w-5" />
+                  </div>
+                  <Link href="tel:+995599642008" className="text-lg hover:text-[#8a1a21] transition-colors">
+                    {t.contact?.phone}
+                  </Link>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 bg-gray-50 rounded-full text-[#8a1a21]">
+                    <Mail className="h-5 w-5" />
+                  </div>
+                  <Link href="mailto:saporegeo@gmail.com" className="text-lg hover:text-[#8a1a21] transition-colors">
+                    {t.contact?.email}
+                  </Link>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h2 className={`${playfair.className} text-2xl border-l-4 border-[#8a1a21] pl-4 uppercase tracking-widest text-[#2d1b11] mb-8`}>
+                Follow Us
+              </h2>
+              <div className="flex space-x-6 pl-4">
+                <Link href="https://www.instagram.com/sapore.tbilisi" target="_blank" className="hover:text-[#8a1a21] transition-colors text-gray-600">
+                  <Instagram className="h-6 w-6" />
+                </Link>
+                <Link href="https://www.tiktok.com/@cafesaporetbilisi" target="_blank" className="hover:text-[#8a1a21] transition-colors text-gray-600">
+                  <Music2 className="h-6 w-6" />
+                </Link>
+              </div>
+            </section>
+          </div>
+
+          {/* Sağ Kolon: Tek Mağaza ve Harita Preview */}
+          <div className="space-y-8">
+            <section>
+              <h2 className={`${playfair.className} text-2xl border-l-4 border-[#8a1a21] pl-4 uppercase tracking-widest text-[#2d1b11] mb-8`}>
+                Our Main Shop
+              </h2>
+              <div className="flex items-start space-x-4 mb-6">
+                <MapPinned className="h-6 w-6 text-[#8a1a21] mt-1 shrink-0" />
+                <div>
+                  <p className="font-bold text-lg text-[#2d1b11]">
+                    {t.contact?.address.davitAghmashenebeli134}
+                  </p>
+                  <p className="text-gray-500 text-sm">Tbilisi, Georgia</p>
+                </div>
+              </div>
+
+              {/* Google Maps Preview */}
+              <div className="w-full h-[350px] rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2978.434863920977!2d44.79644327657279!3d41.71111667127732!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40440cd6921350a9%3A0x7d28367a7834df9b!2s134%20David%20Aghmashenebeli%20Ave%2C%20T'bilisi!5e0!3m2!1sen!2sge!4v1710000000000!5m2!1sen!2sge"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>
+              </div>
+            </section>
+          </div>
+
+        </div>
+      </div>
+    </main>
   );
 }

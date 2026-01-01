@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import MenuClient from './menu';
 import { createSupabaseClient } from '@/lib/supabase-client';
+import Footer from '../_components/Footer';
 
 interface Variant {
   id: string;
@@ -125,6 +126,7 @@ export default async function MenuPage({ searchParams }: MenuPageProps) {
         error={null}
         lang={lang}
       />
+      <Footer />
     </Suspense>
   );
 }
