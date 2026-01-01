@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Menu, X, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import Logo from '/Logo.png';
+import Logo from '@/public/Logo.png';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 const playfair = Playfair_Display({ subsets: ['latin'], weight: '700' });
