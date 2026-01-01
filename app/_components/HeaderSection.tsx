@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { Menu, X, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import Logo from '@/public/Logo.png';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 const playfair = Playfair_Display({ subsets: ['latin'], weight: '700' });
@@ -136,7 +135,7 @@ export default function HeaderSection() {
             <Link href="/collections" className="block relative">
                 <div className={`relative transition-all duration-500 ease-in-out ${isScrolled ? 'w-20 h-20 md:w-24 md:h-24 translate-y-0' : 'w-27 h-27 md:w-28 md:h-28 translate-y-6 md:translate-y-2'}`}>
                   <Image 
-                    src={Logo} 
+                    src='/Logo.png' 
                     alt="Logo" 
                     fill 
                     priority
