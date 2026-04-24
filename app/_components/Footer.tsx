@@ -53,7 +53,7 @@ export default function Footer() {
       </div>
       
       <div className="max-w-[1440px] mx-auto px-8 mt-20 pt-8 border-t border-gray-200/50 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-gray-400 tracking-widest uppercase">
-        <span>© 2025 Sapore All Rights Reserved.</span>
+        <span>© 2026 Sapore All Rights Reserved.</span>
         <div className="flex gap-6">
           <span></span>
         </div>
